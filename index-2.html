@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IF日本国づくり — Web版 Ver. 1.3</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#101720;--panel:#182330;--panel2:#202e3d;--line:#34485c;--text:#edf4fb;--muted:#9fb2c5;--gold:#e3bd70;--green:#80d6a5;--red:#ff7777;--blue:#80baff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:#26394c;color:var(--text);padding:9px 12px;border-radius:9px}button:hover{filter:brightness(1.15)}button:disabled{opacity:.4;cursor:not-allowed}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 16px;background:#0b1118;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.brand{font-weight:800;letter-spacing:.04em}.sub{font-size:12px;color:var(--muted)}.clock{font-weight:800;color:var(--gold);font-size:20px}
+.app{display:grid;grid-template-columns:240px minmax(320px,1fr) 285px;gap:12px;padding:12px;max-width:1600px;margin:auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;overflow:hidden;min-width:0}.ph{padding:11px 13px;background:#1d2a38;border-bottom:1px solid var(--line);font-weight:750;display:flex;justify-content:space-between;align-items:center;gap:8px}.body{padding:12px}.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:var(--panel2);border-radius:9px;padding:10px}.stat small{display:block;color:var(--muted);font-size:11px}.stat strong{font-size:18px;display:block;margin-top:3px}.bar{height:6px;background:#334454;border-radius:9px;overflow:hidden;margin-top:7px}.bar i{display:block;height:100%;background:var(--green);width:55%}.section{margin-top:13px}.section h3{font-size:13px;color:var(--muted);margin:0 0 8px}.btnrow{display:flex;flex-wrap:wrap;gap:6px}.btnrow button{flex:1}.speed.active{background:#a67c2d;border-color:#e3bd70;color:#fff}.maphead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.mapwrap{position:relative;background:#d8dfcf;min-height:520px}#historyMap{height:520px;width:100%;background:#b8d1d8}.leaflet-container{font-family:system-ui,sans-serif}.region{cursor:pointer;transition:fill .15s,filter .15s}.region:hover{filter:brightness(1.07);stroke:#fff;stroke-width:4}.region.selected{fill:#e3bd70;stroke:#8b5b2a;stroke-width:4}.mapnote{position:absolute;left:10px;top:10px;background:#14202ddd;border:1px solid #ffffff33;border-radius:8px;padding:7px 9px;font-size:12px}.maplegend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--muted);padding:8px 12px;background:#15202a}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.mapfooter{padding:11px;display:flex;gap:8px;flex-wrap:wrap;background:#17222e;border-top:1px solid var(--line)}.mapfooter button{flex:1;min-width:85px}.feed{display:flex;flex-direction:column;gap:7px;max-height:520px;overflow:auto}.feeditem{border-left:3px solid var(--blue);background:#202e3b;padding:8px 9px;border-radius:5px;font-size:12px}.feeditem small{display:block;color:var(--muted);margin-bottom:3px}.feeditem.important{border-color:var(--gold)}.feeditem.critical{border-color:var(--red)}.command{width:100%;min-height:94px;background:#101923;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px;resize:vertical}.hint{color:var(--muted);font-size:11px;line-height:1.5}.tag{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:3px 7px;color:var(--muted);font-size:11px}.queueitem{font-size:12px;padding:8px;background:#202e3b;border-radius:8px;margin-top:6px}.queueitem b{color:var(--gold)}.full-event{position:fixed;inset:0;background:#080d13dd;z-index:20;display:none;align-items:center;justify-content:center;padding:18px}.full-event.show{display:flex}.eventbox{max-width:650px;width:100%;background:#241c20;border:1px solid #a84950;border-radius:18px;box-shadow:0 25px 90px #0009;overflow:hidden}.eventtop{background:#642b32;padding:13px 18px;color:#ffe1e1;font-size:12px;letter-spacing:.1em}.eventbody{padding:22px}.eventbody h2{font-size:clamp(24px,4vw,38px);margin:0 0 12px}.eventbody p{color:#f0dfe1;line-height:1.75}.choices{display:grid;gap:8px;margin-top:20px}.choices button{text-align:left;background:#3b2930;border-color:#75414a;padding:12px}.modal{position:fixed;inset:0;background:#05090ecc;z-index:15;display:none;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}.modalbox{max-width:560px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}.modalbox h2{margin-top:0}.slots{display:grid;gap:9px}.slot{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--panel2);padding:10px;border-radius:9px}.slot span{font-size:12px;color:var(--muted)}.toast{position:fixed;right:16px;top:78px;z-index:10;display:grid;gap:7px;width:min(340px,calc(100vw - 32px));pointer-events:none}.toastitem{background:#1b2b39;border:1px solid #48647b;border-left:4px solid var(--blue);padding:10px 12px;border-radius:9px;box-shadow:0 8px 25px #0004;font-size:13px;animation:in .2s ease}.toastitem.important{border-left-color:var(--gold)}@keyframes in{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+footer{padding:8px 15px 20px;color:var(--muted);font-size:11px;text-align:center}.mobile-tabs{display:none}
+@media(max-width:1050px){.app{grid-template-columns:210px minmax(300px,1fr)}.rightcol{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}.rightcol .panel{height:fit-content}}
+@media(max-width:700px){.top{padding:10px;align-items:flex-start}.clock{font-size:17px}.app{display:flex;flex-direction:column;padding:8px;gap:8px}.mapwrap{min-height:340px}#historyMap{height:340px}.leftcol{order:2}.centercol{order:1}.rightcol{order:3;display:flex;flex-direction:column}.feed{max-height:240px}.statgrid{grid-template-columns:repeat(2,1fr)}.top .sub{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+ <div><div class="brand">🇯🇵 IF日本国づくり <span class="tag">WEB VER. 1.3</span></div><div class="sub">1700年開始・リアルタイム国家運営シミュレーション</div></div>
+ <div style="text-align:right"><div class="clock" id="date">1700年 1月</div><div class="sub" id="status">時間停止中</div></div>
+</header>
+<div class="app">
+ <aside class="leftcol">
+  <section class="panel">
+   <div class="ph">国家概況 <span class="tag">日本</span></div>
+   <div class="body">
+    <div class="statgrid">
+     <div class="stat"><small>国庫</small><strong id="treasury">1,000</strong><small>資金</small></div>
+     <div class="stat"><small>人口</small><strong id="population">2,800万</strong><small>人</small></div>
+     <div class="stat"><small>国力</small><strong id="power">42</strong><small>/ 100</small><div class="bar"><i id="powerbar" style="width:42%"></i></div></div>
+     <div class="stat"><small>安定度</small><strong id="stability">72</strong><small>/ 100</small><div class="bar"><i id="stabilitybar" style="width:72%"></i></div></div>
+     <div class="stat"><small>農業</small><strong id="agri">45</strong><small>/ 100</small></div>
+     <div class="stat"><small>技術</small><strong id="tech">12</strong><small>/ 100</small></div>
+    </div>
+    <div class="section"><h3>国家方針</h3>
+      <select id="policy" style="width:100%;padding:9px;border-radius:8px;background:#101923;color:var(--text);border:1px solid var(--line)">
+       <option value="balanced">均衡発展</option><option value="industry">産業・技術優先</option><option value="agriculture">農業・食料優先</option><option value="military">軍備強化</option><option value="education">教育・人材育成</option><option value="diplomacy">外交・交易優先</option>
+      </select>
+      <p class="hint">方針は時間経過による成長に影響します。</p>
+    </div>
+    <div class="section"><h3>時間操作</h3><div class="btnrow">
+      <button class="speed active" data-speed="0">⏸ 停止</button><button class="speed" data-speed="1">▶ 1×</button>
+      <button class="speed" data-speed="2">2×</button><button class="speed" data-speed="5">5×</button><button class="speed" data-speed="10">10×</button>
+    </div><p class="hint">高速中も世界情勢と報告が更新されます。重大事件では自動停止します。</p></div>
+   </div>
+  </section>
+ </aside>
+ <main class="centercol">
+  <section class="panel">
+   <div class="ph maphead"><span>世界地図・東アジア</span><span class="tag" id="mapmode">1700年の情勢</span></div>
+   <div class="mapwrap" id="mapViewport">
+    <div id="historyMap" role="application" aria-label="日本の歴史地図"></div>
+    <div class="mapnote">🗾 実際の海岸線・地形データ<br><span id="mapcaption">地図データを読み込み中…</span></div>
+   </div>
+   <div class="maplegend"><span><i class="dot" style="background:#e3bd70"></i>日本</span><span><i class="dot" style="background:#b34d4d"></i>首都・主要地点</span><span>地形：OpenStreetMap ／ 歴史境界：JapanHistoricMap</span></div>
+   <div class="mapfooter" style="align-items:center">
+    <button id="zoomOut" aria-label="縮小">－</button><button id="zoomReset">日本全体</button><button id="zoomIn" aria-label="拡大">＋</button>
+    <label class="hint"><input type="checkbox" id="daimyoToggle" checked> 大名領域</label><label class="hint"><input type="checkbox" id="provinceToggle" checked> 旧国境界</label>
+   </div>
+   <div class="body" id="regionInfo"><b>選択地域：未選択</b><p class="hint">日本の地域をタップすると、地域名と開発情報が表示されます。</p></div>
+   <div class="mapfooter"><button id="cmdFocus">📜 命令を出す</button><button id="diplomacyBtn">🌏 外交を見る</button><button id="researchBtn">🔬 研究を見る</button><button id="eventHistoryBtn">📰 報告履歴</button></div>
+  </section>
+  <section class="panel section">
+   <div class="ph">国家命令 <span class="tag">自由入力</span></div>
+   <div class="body">
+    <textarea id="command" class="command" placeholder="例：製鉄技術の研究を進め、港と造船所を整備し、長期的に海軍を強化せよ。"></textarea>
+    <div class="btnrow" style="margin-top:8px"><button id="issueBtn">命令を実行に移す</button><button id="clearCmd">消去</button></div>
+    <p class="hint">命令文から関連する方針を簡易判定し、プロジェクトとして進行します。自由文の理解は試作版のため限定的です。</p>
+    <div id="queue"></div>
+   </div>
+  </section>
+  <section class="panel section">
+   <div class="ph">🔎 国家情報に質問</div>
+   <div class="body">
+    <p class="hint">現在の国家データに答えます。例：「今の艦隊の数は？」「人口は？」「国庫はいくら？」「研究は何が進んでいる？」</p>
+    <div class="btnrow"><input id="nationQuestion" placeholder="例：今の艦隊の数は？" style="flex:1;min-width:180px;background:#101923;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px"><button id="askNation">質問する</button></div>
+    <div id="nationAnswer" class="queueitem" style="margin-top:10px">ここに国家からの回答が表示されます。</div>
+   </div>
+  </section>
+ </main>
+ <aside class="rightcol">
+  <section class="panel">
+   <div class="ph">最新報告 <span class="tag" id="reportCount">0件</span></div>
+   <div class="body"><div id="feed" class="feed"><div class="feeditem"><small>1700年 1月</small>国家運営システム起動。最初の方針を決めて時間を進めましょう。</div></div></div>
+  </section>
+  <section class="panel section" style="margin-top:0">
+   <div class="ph">世界情勢</div><div class="body">
+    <div class="stat"><small>清朝</small><strong id="qing">大国・関係中立</strong><div class="bar"><i style="width:75%;background:#d2b36c"></i></div></div>
+    <div class="stat" style="margin-top:8px"><small>朝鮮</small><strong id="korea">隣国・関係中立</strong><div class="bar"><i style="width:55%;background:#80baff"></i></div></div>
+    <div class="stat" style="margin-top:8px"><small>欧州勢力</small><strong id="europe">海上交易に関心</strong><div class="bar"><i style="width:35%;background:#b39ae8"></i></div></div>
+    <p class="hint">外国の行動はイベントとして簡易シミュレーションされます。世界全体を精密に再現するものではありません。</p>
+   </div>
+  </section>
+  <section class="panel section" style="margin-top:0">
+   <div class="ph">進行中の計画</div><div class="body"><div id="projects"><p class="hint">まだ計画はありません。命令を入力するとここに表示されます。</p></div></div>
+  </section>
+ </aside>
+</div>
+<footer>IF日本国づくり Web Ver. 1.3 — 試作版 / 架空の歴史シミュレーション。史実の完全な再現を目的としたものではありません。</footer>
+<section class="panel" style="max-width:1600px;margin:0 auto 12px;width:calc(100% - 24px)">
+ <div class="ph">💾 セーブ・データ管理 <span class="tag">画面最下部</span></div>
+ <div class="body"><div class="btnrow"><button id="saveBtn">💾 保存</button><button id="loadBtn">📂 読込</button><button id="exportBtn">書き出し</button><button id="importBtn">読み込み</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="hint">3つのセーブ枠に保存できます。ゲームの状態はこのブラウザにも自動保存されます（同じWebサイト・同じブラウザで有効）。書き出しはバックアップ、読み込みはバックアップファイルの復元です。 <b id="autosaveStatus">自動保存待機中</b></p></div>
+</section>
+<footer>IF日本国づくり Web Ver. 1.3 — 試作版 / 架空の歴史シミュレーション。史実の完全な再現を目的としたものではありません。</footer>
+<div class="toast" id="toast"></div>
+<div class="full-event" id="majorModal" role="dialog" aria-modal="true">
+ <div class="eventbox"><div class="eventtop">重大国家報告　•　時間を自動停止しました</div><div class="eventbody"><div class="tag" id="majorDate">1700年</div><h2 id="majorTitle">重大事件</h2><p id="majorText"></p><div class="choices" id="majorChoices"></div></div></div>
+</div>
+<div class="modal" id="saveModal" role="dialog" aria-modal="true">
+ <div class="modalbox"><h2 id="saveTitle">セーブ管理</h2><p class="hint">3つのスロットに別々の歴史を保存できます。</p><div class="slots" id="slots"></div><div class="btnrow" style="margin-top:14px"><button id="closeSave">閉じる</button></div></div>
+</div>
+<div class="modal" id="infoModal" role="dialog" aria-modal="true">
+ <div class="modalbox"><h2 id="infoTitle">情報</h2><div id="infoContent"></div><div class="btnrow" style="margin-top:14px"><button id="closeInfo">閉じる</button></div></div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.14/dist/esri-leaflet.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const initial=()=>({year:1700,month:1,speed:0,treasury:1000,population:28000000,power:42,stability:72,agri:45,tech:12,military:25,trade:18,navyShips:0,policy:'balanced',projects:[],feed:[],history:[],lastEventYear:1700,events:0,relations:{qing:0,korea:0,europe:0},nextId:1});
+const AUTO_KEY='ifjp_web_autosave_v1';
+function readAutoSave(){try{const raw=localStorage.getItem(AUTO_KEY);if(!raw)return null;const v=JSON.parse(raw);if(typeof v.year!=='number'||!Array.isArray(v.projects))return null;return {...initial(),...v,speed:0,relations:{...initial().relations,...(v.relations||{})}};}catch{return null}}
+let S=readAutoSave()||initial(),lastTick=Date.now(),monthAccum=0,majorPending=false,saveAction='save';
+function persistAutoSave(){try{const copy={...S,speed:0,autoSavedAt:Date.now()};localStorage.setItem(AUTO_KEY,JSON.stringify(copy));const el=$('autosaveStatus');if(el)el.textContent='自動保存済み';}catch(e){const el=$('autosaveStatus');if(el)el.textContent='自動保存できません（容量・設定を確認）';}}
+window.addEventListener('pagehide',persistAutoSave);
+const policyNames={balanced:'均衡発展',industry:'産業・技術優先',agriculture:'農業・食料優先',military:'軍備強化',education:'教育・人材育成',diplomacy:'外交・交易優先'};
+function dateText(){return `${S.year}年 ${S.month}月`}
+function pushLog(text,type='normal'){
+ const entry={date:dateText(),text,type};S.feed.unshift(entry);S.history.unshift(entry);S.feed=S.feed.slice(0,40);S.history=S.history.slice(0,250);
+ renderFeed();if(type==='major')showMajor(text);else toast(text,type==='important');
+}
+function toast(text,important=false){
+ const el=document.createElement('div');el.className='toastitem'+(important?' important':'');el.textContent=text;$('toast').prepend(el);setTimeout(()=>el.remove(),important?6500:4300);
+}
+function showMajor(text){
+ S.speed=0;updateSpeedButtons();$('status').textContent='重大事件により停止中';majorPending=true;
+ const cases=[
+  {title:'外国からの外交要求',body:'外国勢力から日本に対する外交要求が届きました。急いで対応する必要があります。',choices:[['交渉団を派遣する',()=>{S.relations.europe+=8;S.stability+=1;pushLog('外交交渉を開始。関係改善の可能性が生まれた。','important')}],['一部条件を受け入れる',()=>{S.relations.europe+=13;S.treasury-=60;pushLog('条件の一部を受け入れ、交易の可能性が広がった。','important')}],['要求を拒否し備えを固める',()=>{S.relations.europe-=12;S.military+=2;S.treasury-=40;pushLog('要求を拒否。防衛体制の強化を指示した。','important')}]]},
+  {title:'国内で社会不安が拡大',body:'物価や地域の不満を背景に、国内の不安が高まっています。対応を誤れば安定度に影響する可能性があります。',choices:[['救済策を実施する',()=>{S.treasury-=90;S.stability+=9;S.agri+=1;pushLog('救済策を実施。国庫を使って社会不安を和らげた。','important')}],['原因を調査する',()=>{S.treasury-=25;S.stability+=3;S.tech+=1;pushLog('調査を開始。行政と統計の整備が進んだ。','important')}],['厳しく取り締まる',()=>{S.stability-=5;S.military+=1;pushLog('取り締まりを強化。不満が一部残った。','important')}]]},
+  {title:'画期的な技術の発見',body:'研究者たちが新しい技術につながる発見を報告しました。国家としてどう活用するか決めましょう。',choices:[['研究費を追加する',()=>{S.treasury-=100;S.tech+=5;S.power+=2;pushLog('追加研究費を投入。技術力が大きく前進した。','important')}],['実用化を優先する',()=>{S.treasury-=55;S.power+=3;S.tech+=2;pushLog('実用化を優先。新技術の活用が進んだ。','important')}],['記録し、慎重に研究する',()=>{S.tech+=2;pushLog('研究記録を保存し、段階的な研究を継続する。','important')}]]},
+  {title:'外国で大きな政変',body:'海外から政変の知らせが届きました。周辺情勢が変わる可能性があり、外交方針を考える必要があります。',choices:[['情報収集を強化する',()=>{S.treasury-=40;S.tech+=1;S.relations.europe+=2;pushLog('海外情報の収集を強化した。','important')}],['交易の機会を探る',()=>{S.trade+=3;S.treasury+=30;pushLog('政変後の交易機会を探り、商業活動を拡大した。','important')}],['当面は静観する',()=>{S.stability+=1;pushLog('情勢を静観し、国内の安定を優先した。','important')}]]}
+ ];
+ const ev=cases[Math.floor(Math.random()*cases.length)];
+ $('majorDate').textContent=dateText();$('majorTitle').textContent=ev.title;$('majorText').textContent=text+' '+ev.body;
+ const wrap=$('majorChoices');wrap.innerHTML='';
+ ev.choices.forEach(([label,fn])=>{const b=document.createElement('button');b.textContent=label;b.onclick=()=>{fn();$('majorModal').classList.remove('show');majorPending=false;renderAll();};wrap.appendChild(b)});
+ $('majorModal').classList.add('show');renderAll();
+}
+function updateSpeedButtons(){document.querySelectorAll('.speed').forEach(b=>b.classList.toggle('active',Number(b.dataset.speed)===S.speed));$('status').textContent=S.speed===0?'時間停止中':`${S.speed}倍速で進行中`;}
+document.querySelectorAll('.speed').forEach(b=>b.addEventListener('click',()=>{if(majorPending)return;S.speed=Number(b.dataset.speed);updateSpeedButtons();lastTick=Date.now();}));
+function advanceMonth(){
+ const before={treasury:S.treasury,population:S.population,power:S.power,stability:S.stability,agri:S.agri,tech:S.tech,military:S.military,trade:S.trade};
+ S.month++;if(S.month>12){S.month=1;S.year++;}
+ const p=S.policy;
+ let growth={power:.06,stability:-.015,agri:.03,tech:.025,treasury:2.5};
+ if(p==='industry'){growth.tech=.12;growth.power=.11;growth.treasury=1.2}
+ if(p==='agriculture'){growth.agri=.14;growth.stability=.02;growth.treasury=2}
+ if(p==='military'){growth.power=.04;growth.tech=.02;growth.treasury=-2.8}
+ if(p==='education'){growth.tech=.09;growth.stability=.025;growth.power=.04}
+ if(p==='diplomacy'){growth.treasury=4;growth.stability=.015;growth.power=.03}
+ S.power+=growth.power;S.stability+=growth.stability;S.agri+=growth.agri;S.tech+=growth.tech;S.treasury+=growth.treasury;
+ S.population+=Math.round(S.population*(S.agri<25?0.00005:0.00022));
+ // projects progress
+ for(const pr of S.projects){if(pr.done)continue;pr.progress+=Math.max(.3,S.tech/35)*(p==='industry'&&/研究|製鉄|技術|蒸気/.test(pr.name)?1.5:1);if(pr.progress>=pr.goal){pr.done=true;applyProject(pr);}}
+ S.projects=S.projects.filter(pr=>!pr.done);
+ if(S.month===1){S.treasury+=12;S.agri+=(S.agri<30?-.3:.15);if(Math.random()<.18)pushLog(`年次報告：新年の会計処理で国庫に12資金を追加。農業指標は${S.agri<30?'低水準のため0.3低下':'季節調整で0.15上昇'}しました。`);}
+ // world AI-ish behavior
+ if(Math.random()<.025){S.relations.qing+=Math.random()<.5?-1:1;pushLog(`清朝との関係値が${S.relations.qing>0?'1ポイント改善':'1ポイント悪化'}しました（現在 ${Math.round(S.relations.qing)}）。周辺政策の変化が影響したようです。`);}
+ if(Math.random()<.018){S.relations.korea+=Math.random()<.5?-1:1;pushLog(`朝鮮との関係値が${S.relations.korea>0?'1ポイント改善':'1ポイント悪化'}しました（現在 ${Math.round(S.relations.korea)}）。交易・外交情勢の変化が影響したようです。`);}
+ if(Math.random()<.015){S.relations.europe+=Math.random()<.5?-1:1;pushLog(`欧州勢力との関係値が${S.relations.europe>0?'1ポイント改善':'1ポイント悪化'}しました（現在 ${Math.round(S.relations.europe)}）。海上活動の変化が確認されました。`,'important');}
+ if(Math.random()<.012){const gain=Math.round(Math.random()*30);S.treasury+=gain;S.trade+=.2;pushLog(`交易報告：商人の活動により国庫が${gain}資金増加。交易指標も0.2上昇しました（現在 ${S.trade.toFixed(1)}）。`);}
+ if(Math.random()<.007){const loss=2+Math.random()*3;S.stability-=loss;pushLog(`国内情勢：物価または税負担への不満が報告され、安定度が${loss.toFixed(1)}低下しました（現在 ${S.stability.toFixed(1)}）。`,'important');}
+ if(S.year-S.lastEventYear>=2&&Math.random()<.055){S.lastEventYear=S.year;S.events++;const txt=['海外勢力から通商条件または外交上の要求が届きました。','国内の研究者が新技術につながる発見を報告しました。','米価上昇の報告が各地から届き、食料政策の見直しが必要です。','外国で政変が発生し、周辺国の外交関係が変化する可能性があります。','商人たちが新たな交易路の候補を発見しました。'][Math.floor(Math.random()*5)];pushLog(txt,'major');}
+ // 詳細な月次報告：数値の前後・変化量・主な要因を記録
+ const changes=[];
+ const addChange=(label,key,unit='',digits=1)=>{const d=S[key]-before[key];if(Math.abs(d)>=0.001){const sign=d>0?'+':'';changes.push(`${label}：${before[key].toLocaleString('ja-JP',{maximumFractionDigits:digits})} → ${S[key].toLocaleString('ja-JP',{maximumFractionDigits:digits})}（${sign}${d.toLocaleString('ja-JP',{maximumFractionDigits:digits})}${unit}）`);}};
+ addChange('国庫','treasury','資金',1);addChange('人口','population','人',0);addChange('国力','power','',2);addChange('安定度','stability','',2);addChange('農業指標','agri','',2);addChange('技術力','tech','',2);addChange('軍備指標','military','',2);addChange('交易指標','trade','',2);
+ const activeProjects=S.projects.map(pr=>`${pr.name}：進捗 ${Math.floor(pr.progress)}/${pr.goal}`).join('、');
+ const reasons=[];
+ if(p==='balanced')reasons.push('均衡発展方針による基礎成長');if(p==='industry')reasons.push('産業・技術優先方針による研究・国力成長');if(p==='agriculture')reasons.push('農業・食料優先方針による農業・安定度成長');if(p==='military')reasons.push('軍備強化方針による国力成長と維持費');if(p==='education')reasons.push('教育・人材育成方針による技術・安定度成長');if(p==='diplomacy')reasons.push('外交・交易優先方針による国庫・交易成長');
+ if(S.month===1)reasons.push('年初の会計処理');if(S.projects.length)reasons.push('進行中の国家計画');
+ if(changes.length)pushLog(`【月次国家詳細報告】${dateText()}
+主な要因：${reasons.join('、')}。
+数値の変化：${changes.join(' ／ ')}。
+進行中の計画：${activeProjects||'なし'}。`);
+ // clamp and updates
+ S.power=clamp(S.power,0,100);S.stability=clamp(S.stability,0,100);S.agri=clamp(S.agri,0,100);S.tech=clamp(S.tech,0,100);S.military=clamp(S.military,0,100);S.trade=clamp(S.trade,0,100);S.treasury=Math.max(0,S.treasury);
+}
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+function applyProject(pr){
+ const effects=pr.kind==='tech'?()=>{S.tech+=3;S.power+=1;S.treasury-=15}:pr.kind==='agri'?()=>{S.agri+=4;S.stability+=1}:pr.kind==='military'?()=>{S.military+=5;S.power+=2;S.treasury-=30}:pr.kind==='trade'?()=>{S.trade+=5;S.treasury+=40}:()=>{S.power+=2;S.stability+=1};
+ effects();const impact=pr.kind==='tech'?'技術 +3、国力 +1、国庫 -15':pr.kind==='agri'?'農業 +4、安定度 +1':pr.kind==='military'?'軍備 +5、国力 +2、国庫 -30':pr.kind==='trade'?'交易 +5、国庫 +40':'国力 +2、安定度 +1';pushLog(`計画完了：「${pr.name}」。成果：${impact}。各数値に反映されました。`,'important');
+}
+function renderFeed(){
+ $('feed').innerHTML='';S.feed.slice(0,25).forEach(e=>{const d=document.createElement('div');d.className='feeditem'+(e.type==='important'?' important':e.type==='major'?' critical':'');const sm=document.createElement('small');sm.textContent=e.date;d.append(sm,document.createTextNode(e.text));$('feed').appendChild(d)});$('reportCount').textContent=S.feed.length+'件';
+}
+function renderProjects(){
+ const box=$('projects');box.innerHTML='';
+ if(!S.projects.length){box.innerHTML='<p class="hint">進行中の計画はありません。命令を入力するとここに表示されます。</p>';return}
+ S.projects.forEach(p=>{const d=document.createElement('div');d.className='queueitem';d.innerHTML=`<b>${esc(p.name)}</b><div class="bar"><i style="width:${Math.min(100,p.progress/p.goal*100)}%"></i></div><small>${Math.floor(p.progress)} / ${p.goal} 進捗</small>`;box.appendChild(d)});
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderAll(){
+ $('date').textContent=dateText();$('treasury').textContent=Math.round(S.treasury).toLocaleString('ja-JP');$('population').textContent=(S.population/10000).toFixed(0)+'万';$('power').textContent=Math.round(S.power);$('stability').textContent=Math.round(S.stability);$('agri').textContent=Math.round(S.agri);$('tech').textContent=Math.round(S.tech);$('powerbar').style.width=S.power+'%';$('stabilitybar').style.width=S.stability+'%';$('policy').value=S.policy;
+ $('qing').textContent=S.relations.qing>10?'関係良好':S.relations.qing< -10?'関係緊張':'大国・関係中立';$('korea').textContent=S.relations.korea>10?'関係良好':S.relations.korea< -10?'関係緊張':'隣国・関係中立';$('europe').textContent=S.relations.europe>10?'交易関係拡大':S.relations.europe< -10?'関係緊張':'海上交易に関心';
+ $('mapcaption').textContent=`国力 ${Math.round(S.power)} / 技術 ${Math.round(S.tech)}。政策「${policyNames[S.policy]}」で運営中。`;renderProjects();renderFeed();updateSpeedButtons();persistAutoSave();
+}
+$('policy').addEventListener('change',e=>{S.policy=e.target.value;pushLog(`国家方針を「${policyNames[S.policy]}」に変更しました。`,'important');renderAll()});
+function issueCommand(){
+ const raw=$('command').value.trim();if(!raw){toast('まずは国家への命令を入力してください。');return}
+ let kind='general',name=raw.slice(0,55),goal=10;
+ if(/研究|技術|製鉄|蒸気|医学|教育/.test(raw)){kind='tech';goal=12;S.treasury-=15}
+ else if(/農業|米|灌漑|食料|田畑/.test(raw)){kind='agri';goal=8}
+ else if(/軍|海軍|陸軍|兵器|防衛|造船/.test(raw)){kind='military';goal=14;S.treasury-=25}
+ else if(/交易|貿易|港|外交|商業/.test(raw)){kind='trade';goal=9}
+ else {goal=10;S.treasury-=10}
+ if(S.projects.length>=8){toast('進行中の計画が多すぎます。いくつか完了するまで待ってください。');return}
+ S.projects.push({id:S.nextId++,name,kind,goal,progress:0,done:false,command:raw});
+ $('command').value='';pushLog(`国家命令を受理：「${name}」の実行を開始しました。`,'important');renderAll();
+}
+$('issueBtn').onclick=issueCommand;$('clearCmd').onclick=()=>$('command').value='';$('cmdFocus').onclick=()=>$('command').focus();
+$('researchBtn').onclick=()=>showInfo('研究部門',`<p>現在の技術力：<b>${Math.round(S.tech)}/100</b></p><p>研究命令の例：</p><ul><li>製鉄技術の研究を進めよ</li><li>医学と教育を発展させよ</li><li>蒸気機関の基礎研究を開始せよ</li></ul><p class="hint">研究の進行は技術力と国家方針の影響を受けます。</p>`);
+$('diplomacyBtn').onclick=()=>showInfo('外交局',`<p><b>清朝：</b>${$('qing').textContent}</p><p><b>朝鮮：</b>${$('korea').textContent}</p><p><b>欧州勢力：</b>${$('europe').textContent}</p><p>命令例：清朝との交易可能性を調査せよ／周辺国に外交使節を派遣せよ／海外情勢の情報収集を強化せよ。</p>`);
+$('eventHistoryBtn').onclick=()=>showInfo('報告履歴',S.history.length?'<div style="max-height:55vh;overflow:auto">'+S.history.slice(0,100).map(e=>`<div class="feeditem ${e.type==='major'?'critical':e.type==='important'?'important':''}" style="margin-bottom:6px"><small>${esc(e.date)}</small>${esc(e.text)}</div>`).join('')+'</div>':'<p>まだ報告はありません。</p>');
+function showInfo(title,content){$('infoTitle').textContent=title;$('infoContent').innerHTML=content;$('infoModal').classList.add('show')}
+$('closeInfo').onclick=()=>$('infoModal').classList.remove('show');
+function answerNationQuestion(){
+ const q=$('nationQuestion').value.trim();if(!q){$('nationAnswer').textContent='質問を入力してください。';return;}
+ const has=(...words)=>words.some(w=>q.includes(w));let a='';
+ if(has('艦隊','軍艦','海軍','船の数','船舶')) a=`現在の国家艦隊は **${S.navyShips||0}隻** です。※この試作版では、艦隊数は国家が保有する軍艦の隻数として管理しています。`;
+ else if(has('人口','人の数')) a=`現在の人口は **${Math.round(S.population).toLocaleString('ja-JP')}人（約${(S.population/10000).toFixed(0)}万人）** です。`;
+ else if(has('国庫','お金','資金','予算')) a=`現在の国庫は **${Math.round(S.treasury).toLocaleString('ja-JP')}資金** です。`;
+ else if(has('国力')) a=`現在の国力は **${S.power.toFixed(1)}/100** です。`;
+ else if(has('安定','治安')) a=`国内安定度は **${S.stability.toFixed(1)}/100** です。`;
+ else if(has('農業','食料','米')) a=`農業指標は **${S.agri.toFixed(1)}/100** です。`;
+ else if(has('技術','研究')) a=`技術力は **${S.tech.toFixed(1)}/100** です。${S.projects.filter(x=>x.kind==='tech').length?`研究関連の計画は${S.projects.filter(x=>x.kind==='tech').length}件進行中です。`:'現在、研究関連の計画はありません。'}`;
+ else if(has('軍備','軍事','陸軍')) a=`軍備指標は **${S.military.toFixed(1)}/100** です。なお、陸軍の兵員数はまだゲーム内で個別管理していません。`;
+ else if(has('交易','貿易','商業')) a=`交易指標は **${S.trade.toFixed(1)}/100** です。`;
+ else if(has('外交','清朝','清','朝鮮','欧州')) a=`外交関係値は、清朝 ${S.relations.qing}、朝鮮 ${S.relations.korea}、欧州勢力 ${S.relations.europe} です。`;
+ else if(has('計画','建設','プロジェクト')) a=S.projects.length?`進行中の計画は${S.projects.length}件です：${S.projects.map(x=>`${x.name}（${Math.floor(x.progress)}/${x.goal}）`).join('、')}。`:'現在、進行中の計画はありません。';
+ else a='その項目は、まだ国家データとして管理していません。今は人口・国庫・国力・安定度・農業・技術・軍備・交易・艦隊数・外交関係・進行中の計画について回答できます。';
+ $('nationAnswer').textContent=`【${dateText()}・国家報告】\n${a.replaceAll('**','')}`;
+}
+$('askNation').onclick=answerNationQuestion;$('nationQuestion').addEventListener('keydown',e=>{if(e.key==='Enter')answerNationQuestion()});
+$('saveBtn').onclick=()=>openSave('save');$('loadBtn').onclick=()=>openSave('load');$('closeSave').onclick=()=>$('saveModal').classList.remove('show');
+function openSave(action){saveAction=action;$('saveTitle').textContent=action==='save'?'どの枠に保存する？':'どの枠を読み込む？';const wrap=$('slots');wrap.innerHTML='';for(let i=1;i<=3;i++){const raw=localStorage.getItem('ifjp_slot_'+i);let data=null;try{data=raw?JSON.parse(raw):null}catch{}const row=document.createElement('div');row.className='slot';const info=document.createElement('div');info.innerHTML=`<b>セーブ枠 ${i}</b><br><span>${data?`${data.year}年 ${data.month}月 / 国力 ${Math.round(data.power)} / ${new Date(data.savedAt||Date.now()).toLocaleString('ja-JP')}`:'空きスロット'}</span>`;const btn=document.createElement('button');btn.textContent=action==='save'?'保存':data?'読込':'空き';btn.disabled=action==='load'&&!data;btn.onclick=()=>{if(action==='save'){const copy=JSON.parse(JSON.stringify(S));copy.savedAt=Date.now();localStorage.setItem('ifjp_slot_'+i,JSON.stringify(copy));pushLog(`セーブ枠 ${i} に保存しました。`);openSave('save')}else{S=JSON.parse(raw);S.speed=0;majorPending=false;$('majorModal').classList.remove('show');renderAll();$('saveModal').classList.remove('show');pushLog(`セーブ枠 ${i} を読み込みました。`)} };row.append(info,btn);wrap.appendChild(row)}$('saveModal').classList.add('show')}
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({...S,savedAt:Date.now()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`IF日本国づくり_${S.year}年_${S.month}月.json`;a.click();URL.revokeObjectURL(a.href);toast('セーブデータを書き出しました。',true)};
+$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text());if(typeof obj.year!=='number'||!Array.isArray(obj.projects))throw Error('invalid');S={...initial(),...obj,speed:0};majorPending=false;$('majorModal').classList.remove('show');renderAll();pushLog('外部セーブデータを読み込みました。','important')}catch{toast('このファイルはセーブデータとして読み込めませんでした。',true)}e.target.value=''};
+function loop(){const now=Date.now(),dt=Math.min(1000,now-lastTick);lastTick=now;if(S.speed>0&&!majorPending){monthAccum+=dt*S.speed;if(monthAccum>=1800){const n=Math.min(30,Math.floor(monthAccum/1800));monthAccum-=n*1800;for(let i=0;i<n;i++){if(majorPending)break;advanceMonth()}renderAll()}}requestAnimationFrame(loop)}
+
+// Real geographic map + historical layers (requires an internet connection).
+(function(){
+ const map=L.map('historyMap',{zoomControl:true,scrollWheelZoom:true}).setView([36.2,137.8],5);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const base='https://services5.arcgis.com/cuQhNeNcUrgLmYGD/ArcGIS/rest/services/JapanHistoricMap/FeatureServer';
+ const daimyo=L.esri.featureLayer({url:base+'/0',style:()=>({color:'#7b382c',weight:1,fillColor:'#d99a65',fillOpacity:.22}),onEachFeature:(f,l)=>{l.on('click',()=>showFeature(f,'大名領域'));}});
+ const provinces=L.esri.featureLayer({url:base+'/1',style:()=>({color:'#4a6172',weight:1.25,fillColor:'#d9cda6',fillOpacity:.05}),onEachFeature:(f,l)=>{l.on('click',()=>showFeature(f,'旧国境界'));}});
+ daimyo.addTo(map);provinces.addTo(map);
+ function showFeature(f,type){const props=f.properties||{};const rows=Object.entries(props).filter(([k,v])=>v!==null&&v!==''&&typeof v!=='object').slice(0,12);$('regionInfo').innerHTML='<b>'+type+'を選択</b><p class="hint">'+(rows.length?rows.map(([k,v])=>`${esc(k)}：${esc(v)}`).join('<br>'):'属性情報はありません')+'</p><p class="hint">この歴史レイヤーは公開GISデータです。1700年の全藩境を完全に保証する史料ではなく、年代・境界の検証が必要です。</p>'; $('mapcaption').textContent=type+'を選択中';}
+ $('daimyoToggle').onchange=e=>e.target.checked?daimyo.addTo(map):map.removeLayer(daimyo);
+ $('provinceToggle').onchange=e=>e.target.checked?provinces.addTo(map):map.removeLayer(provinces);
+ $('zoomIn').onclick=()=>map.zoomIn();$('zoomOut').onclick=()=>map.zoomOut();$('zoomReset').onclick=()=>map.fitBounds([[30,128],[46,146]]);
+ map.fitBounds([[30,128],[46,146]]);
+ $('mapcaption').textContent='ドラッグで移動・＋－で拡大縮小。領域をクリックできます。';
+})();
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){['saveModal','infoModal'].forEach(id=>$(id).classList.remove('show'))}if((e.ctrlKey||e.metaKey)&&e.key==='Enter')issueCommand()});
+renderAll();if(S.year===1700&&S.month===1&&S.history.length===0){pushLog('1700年、日本の国家運営を開始。国家方針を選び、命令を出して時間を進めましょう。')}else{pushLog('前回の自動セーブデータを復元しました。続きから国家運営を再開できます。','important')}requestAnimationFrame(loop);
+</script>
+</body>
+</html>
